@@ -6,7 +6,7 @@ from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 from apscheduler.schedulers.blocking import BlockingScheduler
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, request, jsonify
 import threading
 
 # Load environment variables from .env
@@ -61,9 +61,13 @@ app = Flask(__name__)
 def home():
     return "Joke of the Day bot is running!"
 
-@app.route('/joke')
-def joke_endpoint():
-    return get_joke()
+@app.route('/joke', methods=['POST'])
+def joke_slash_command():
+    joke = get_joke()
+    return jsonify({
+        "response_type": "in_channel",
+        "text": f":laughing: *Here's your joke:*\n{joke}"
+    })
 def run_flask():
     port = int(os.environ.get("PORT", 10000))  # Use Render-provided PORT or fallback locally
     app.run(host='0.0.0.0', port=port)
