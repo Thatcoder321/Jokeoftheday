@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 import threading
 import traceback
+import uuid
 
 # Load environment variables from .env
 load_dotenv()
@@ -30,14 +31,15 @@ def get_joke():
         print("🔑 API Key starts with:", str(openai.api_key)[:8])
 
         client = openai.OpenAI()
+        unique_prompt = f"Tell me a short, funny, original joke. (session: {uuid.uuid4()})"
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "You are a witty comedian."},
-                {"role": "user", "content": "Tell me a short, funny, original joke."}
+                {"role": "user", "content": unique_prompt}
             ],
             max_tokens=50,
-            temperature=0.9
+            temperature=1.0
         )
         joke = response.choices[0].message.content.strip()
         usage_stats["jokes_generated"] += 1
