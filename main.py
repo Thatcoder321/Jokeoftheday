@@ -27,7 +27,8 @@ def get_joke():
         print("💡 DEBUG: Entered get_joke()")
         print("🔑 API Key starts with:", str(openai.api_key)[:8])
 
-        response = openai.ChatCompletion.create(
+        client = openai.OpenAI()
+        response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "You are a witty comedian."},
