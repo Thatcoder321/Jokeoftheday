@@ -23,8 +23,9 @@ client = WebClient(token=SLACK_TOKEN)
 # Generate a joke using OpenAI
 def get_joke():
     try:
+        print("Using API key:", openai.api_key)  # Debug line
         response = openai.ChatCompletion.create(
-            model="gpt-4o-mini",  # or "gpt-4" if available
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "You are a witty comedian."},
                 {"role": "user", "content": "Tell me a short, funny, original joke."}
@@ -34,9 +35,8 @@ def get_joke():
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
-        print(f"Error getting joke from OpenAI: {e}")
+        print("OpenAI error:", e)
         return "Why did the backup bot get fired? It kept repeating itself."
-
 # Post the joke to Slack
 def post_joke():
     joke = get_joke()
