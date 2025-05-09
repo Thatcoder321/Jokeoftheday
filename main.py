@@ -60,11 +60,19 @@ def home():
 
 @app.route('/joke', methods=['POST'])
 def joke_slash_command():
-    joke = get_joke()
-    return jsonify({
-        "response_type": "in_channel",
-        "text": f":laughing: *Here's your joke:*\n{joke}"
-    })
+    response_url = request.form.get("response_url")
+
+    def send_joke_later():
+        joke = get_joke()
+        requests.post(response_url, json={
+            "response_type": "in_channel",
+            "text": f":laughing: *Here's your joke:*\n{joke}"
+        })
+
+    threading.Thread(target=send_joke_later).start()
+
+    # Respond immediately to Slack
+    return "", 200
 def run_flask():
     port = int(os.environ.get("PORT", 10000))  # Use Render-provided PORT or fallback locally
     app.run(host='0.0.0.0', port=port)
