@@ -88,6 +88,11 @@ def log_slash_command():
         "text": f":bar_chart: Jokes generated since last restart: {count}"
     })
 
+@app.route('/test-joke', methods=['GET'])
+def test_joke():
+    joke = get_joke()
+    return f"<pre>{joke}</pre>"
+
 def run_flask():
     port = int(os.environ.get("PORT", 10000))  # Use Render-provided PORT or fallback locally
     app.run(host='0.0.0.0', port=port)
