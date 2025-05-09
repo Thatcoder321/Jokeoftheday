@@ -21,6 +21,8 @@ CHANNEL_ID = "C08BT8X1KA5"
 # Slack client setup
 client = WebClient(token=SLACK_TOKEN)
 
+usage_stats = {"jokes_generated": 0}
+
 # Generate a joke using OpenAI
 def get_joke():
     try:
@@ -37,7 +39,9 @@ def get_joke():
             max_tokens=50,
             temperature=0.9
         )
-        return response.choices[0].message.content.strip()
+        joke = response.choices[0].message.content.strip()
+        usage_stats["jokes_generated"] += 1
+        return joke
     except Exception:
         print("❌ OpenAI API error occurred:")
         traceback.print_exc()
@@ -73,6 +77,15 @@ def joke_slash_command():
 
     # Respond immediately to Slack
     return "", 200
+
+@app.route('/log', methods=['POST'])
+def log_slash_command():
+    count = usage_stats["jokes_generated"]
+    return jsonify({
+        "response_type": "ephemeral",
+        "text": f":bar_chart: Jokes generated since last restart: {count}"
+    })
+
 def run_flask():
     port = int(os.environ.get("PORT", 10000))  # Use Render-provided PORT or fallback locally
     app.run(host='0.0.0.0', port=port)
