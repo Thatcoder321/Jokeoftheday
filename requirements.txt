@@ -3,3 +3,4 @@ slack_sdk
 apscheduler
 requests
 python-dotenv
+flask
