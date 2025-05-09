@@ -1,4 +1,4 @@
-openai
+openai>=1.0.0
 slack_sdk
 apscheduler
 requests
