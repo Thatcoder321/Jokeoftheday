@@ -6,6 +6,8 @@ from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 from apscheduler.schedulers.blocking import BlockingScheduler
 from dotenv import load_dotenv
+from flask import Flask
+import threading
 
 # Load environment variables from .env
 load_dotenv()
@@ -43,6 +45,23 @@ def post_joke():
         print("Joke posted successfully.")
     except SlackApiError as e:
         print(f"Error posting message to Slack: {e}")
+
+# Flask app for serving jokes via HTTP
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Joke of the Day bot is running!"
+
+@app.route('/joke')
+def joke_endpoint():
+    return get_joke()
+def run_flask():
+    port = int(os.environ.get("PORT", 10000))  # Use Render-provided PORT or fallback locally
+    app.run(host='0.0.0.0', port=port)
+
+# Start the Flask server in a background thread
+threading.Thread(target=run_flask).start()
 
 # Schedule the bot to run every day at 9 AM
 scheduler = BlockingScheduler()
