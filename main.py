@@ -23,7 +23,11 @@ client = WebClient(token=SLACK_TOKEN)
 # Generate a joke using OpenAI
 def get_joke():
     try:
-        print("Using API key:", openai.api_key)  # Debug line
+        if not openai.api_key:
+            print("❌ OPENAI_API_KEY is not set!")
+        else:
+            print("✅ Using API key:", openai.api_key[:5] + "...")
+        
         response = openai.ChatCompletion.create(
             model="gpt-4o-mini",
             messages=[
@@ -33,6 +37,10 @@ def get_joke():
             max_tokens=50,
             temperature=0.9
         )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        print("OpenAI error:", e)
+        return "Why did the backup bot get fired? It kept repeating itself."
         return response.choices[0].message.content.strip()
     except Exception as e:
         print("OpenAI error:", e)
