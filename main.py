@@ -8,6 +8,7 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 import threading
+import traceback
 
 # Load environment variables from .env
 load_dotenv()
@@ -23,11 +24,9 @@ client = WebClient(token=SLACK_TOKEN)
 # Generate a joke using OpenAI
 def get_joke():
     try:
-        if not openai.api_key:
-            print("❌ OPENAI_API_KEY is not set!")
-        else:
-            print("✅ Using API key:", openai.api_key[:5] + "...")
-        
+        print("💡 DEBUG: Entered get_joke()")
+        print("🔑 API Key starts with:", str(openai.api_key)[:8])
+
         response = openai.ChatCompletion.create(
             model="gpt-4o-mini",
             messages=[
@@ -38,12 +37,9 @@ def get_joke():
             temperature=0.9
         )
         return response.choices[0].message.content.strip()
-    except Exception as e:
-        print("OpenAI error:", e)
-        return "Why did the backup bot get fired? It kept repeating itself."
-        return response.choices[0].message.content.strip()
-    except Exception as e:
-        print("OpenAI error:", e)
+    except Exception:
+        print("❌ OpenAI API error occurred:")
+        traceback.print_exc()
         return "Why did the backup bot get fired? It kept repeating itself."
 # Post the joke to Slack
 def post_joke():
