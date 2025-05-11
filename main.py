@@ -28,20 +28,40 @@ usage_stats = {"jokes_generated": 0}
 def get_joke():
     try:
         print("💡 DEBUG: Entered get_joke()")
-        print("🔑 API Key starts with:", str(openai.api_key)[:8])
+        print("🔑 API Key starts with:", str(openai.api_key)[:8]) # Keep this for debugging
 
-        client = openai.OpenAI()
-        unique_prompt = f"Tell me a short, funny, original joke. (session: {uuid.uuid4()})"
-        response = client.chat.completions.create(
+        oai_client = openai.OpenAI() # Renamed to avoid confusion with Slack client
+
+        # MORE VARIED PROMPTS
+        themes = [
+            "animals", "work", "technology", "food", "space",
+            "history", "science", "puns", "dad jokes"
+        ]
+        adjectives = [
+            "silly", "clever", "quick", "surprising", "modern", "classic"
+        ]
+        prompt_styles = [
+            f"Tell me a short, {random.choice(adjectives)}, original joke about {random.choice(themes)}. (session: {uuid.uuid4()})",
+            f"Give me a one-liner joke that's really {random.choice(adjectives)}. (ID: {uuid.uuid4()})",
+            f"What's a funny, clean joke appropriate for an office? Make it about {random.choice(themes)}. (ref: {uuid.uuid4()})"
+        ]
+        unique_prompt = random.choice(prompt_styles)
+        print(f"💬 DEBUG: Generated prompt: {unique_prompt}") # Log the prompt
+
+        response = oai_client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "You are a witty comedian."},
+                {"role": "system", "content": "You are a witty comedian who tells a wide variety of jokes."},
                 {"role": "user", "content": unique_prompt}
             ],
-            max_tokens=50,
-            temperature=1.0
+            max_tokens=60, # Slightly more tokens just in case
+            temperature=1.2, # Push temperature even higher for more randomness
+            # Consider adding frequency_penalty or presence_penalty if repetition persists
+            # frequency_penalty=0.5, # Value between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency.
+            # presence_penalty=0.5   # Value between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far.
         )
         joke = response.choices[0].message.content.strip()
+        print(f"😂 DEBUG: Received joke: {joke}") # Log the joke
         usage_stats["jokes_generated"] += 1
         return joke
     except Exception:
